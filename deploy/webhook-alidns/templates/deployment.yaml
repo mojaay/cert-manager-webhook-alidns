@@ -1,7 +1,8 @@
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "webhook-alidns.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
   labels:
     app: {{ include "webhook-alidns.name" . }}
     chart: {{ include "webhook-alidns.chart" . }}
@@ -20,6 +21,10 @@ spec:
         release: {{ .Release.Name }}
     spec:
       serviceAccountName: {{ include "webhook-alidns.fullname" . }}
+    {{- if .Values.image.privateRegistrySecretName }}
+      imagePullSecrets:
+        - name: {{ .Values.image.privateRegistrySecretName }}
+    {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
